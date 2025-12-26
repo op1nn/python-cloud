@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - CloudAdmin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 88px;
+            --primary-color: #4361ee;
+            --primary-light: rgba(67, 97, 238, 0.08);
+            --transition-speed: 0.4s;
+            --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body { background-color: #f4f7fe; display: flex; min-height: 100vh; margin: 0; overflow-x: hidden; }
+
+        /* --- 侧边栏主体 --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: #fff;
+            transition: all var(--transition-speed) var(--transition-curve);
+            border-right: 1px solid rgba(0,0,0,0.05);
+            position: fixed;
+            height: 100vh;
+            z-index: 1050;
+            display: flex;
+            flex-direction: column;
+        }
+        #sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+
+        /* --- 导航项及动画 --- */
+        .sidebar-logo { height: 70px; padding: 0 28px; display: flex; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.02); overflow: hidden; }
+        .nav-link {
+            color: #64748b; padding: 14px 28px; display: flex; align-items: center;
+            border-radius: 0 50px 50px 0; margin-right: 15px; margin-bottom: 5px;
+            transition: all 0.3s var(--transition-curve); text-decoration: none; font-weight: 500; position: relative;
+        }
+        .nav-link:hover { background: rgba(67, 97, 238, 0.04); color: var(--primary-color); }
+
+        /* 激活状态的丝滑指示条 */
+        .nav-link.active { background: var(--primary-light); color: var(--primary-color); }
+        .nav-link.active::before {
+            content: ""; position: absolute; left: 0; top: 15%; height: 70%; width: 4px;
+            background: var(--primary-color); border-radius: 0 4px 4px 0;
+            animation: navBarIn 0.4s var(--transition-curve);
+        }
+        @keyframes navBarIn { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+        .nav-link i { font-size: 1.3rem; min-width: 32px; transition: transform 0.3s; }
+        .nav-link.active i { transform: scale(1.1); }
+        .sidebar-text { margin-left: 12px; transition: opacity 0.3s; white-space: nowrap; }
+        .collapsed .sidebar-text { opacity: 0; pointer-events: none; }
+
+        /* --- 内容区 --- */
+        #main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            transition: all var(--transition-speed) var(--transition-curve);
+            min-width: 0;
+        }
+        #main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
+
+        .admin-header { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); sticky-top; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .btn-toggle { width: 42px; height: 42px; border-radius: 10px; border: none; background: #f8f9fa; transition: 0.3s; }
+    </style>
+</head>
+<body>
+
+<aside id="sidebar">
+    <div class="sidebar-logo">
+        <i class="bi bi-clouds-fill text-primary fs-3"></i>
+        <span class="fw-bold fs-5 sidebar-text text-dark ms-2">CloudAdmin</span>
+    </div>
+    <nav class="nav-container py-4 flex-grow-1">
+        <a href="{{ url_for('admin.admin_index') }}" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+            <i class="bi bi-grid-1x2"></i><span class="sidebar-text">仪表盘</span>
+        </a>
+        <a href="{{ url_for('admin.browse_uploads') }}" class="nav-link {% if active_page == 'uploads' %}active{% endif %}">
+            <i class="bi bi-folder2-open"></i><span class="sidebar-text">文件资源</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer p-3 border-top text-center">
+        <button class="btn-toggle" onclick="toggleSidebar()"><i class="bi bi-chevron-left" id="toggle-icon"></i></button>
+    </div>
+</aside>
+
+<main id="main-content">
+    <header class="admin-header py-3 px-4 mb-4 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold">{% block page_title %}{% endblock %}</h5>
+        <a href="{{ url_for('files.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">返回前台</a>
+    </header>
+    <div class="container-fluid px-4">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<script>
+    function toggleSidebar() {
+        const sb = document.getElementById('sidebar');
+        const mc = document.getElementById('main-content');
+        const icon = document.getElementById('toggle-icon');
+        sb.classList.toggle('collapsed');
+        mc.classList.toggle('expanded');
+        icon.style.transform = sb.classList.contains('collapsed') ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

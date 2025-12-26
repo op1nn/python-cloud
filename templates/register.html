@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - CloudDrive</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f8f9fa;
+        }
+        .login-card-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px;
+        }
+
+        /* 胶囊输入框优化 */
+        .custom-input-group {
+            background-color: #f1f3f5;
+            border-radius: 12px;
+            padding: 2px 5px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        .custom-input-group:focus-within {
+            background-color: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+        }
+        .custom-input-group .input-group-text {
+            background: transparent;
+            border: none;
+            padding-left: 15px;
+        }
+        .custom-input-group .form-control {
+            background: transparent;
+            border: none;
+            padding: 12px 10px;
+            font-size: 0.95rem;
+        }
+        .custom-input-group .form-control:focus {
+            box-shadow: none;
+        }
+
+        .btn-register {
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            background-color: var(--primary-color);
+            border: none;
+            margin-top: 10px;
+        }
+        .login-header i {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card-container">
+    <div class="text-center mb-4 login-header">
+        <i class="bi bi-person-plus-fill text-primary"></i>
+        <h3 class="fw-bold">创建账号</h3>
+        <p class="text-muted small">开启您的私有云端存储之旅</p>
+    </div>
+
+    <div class="file-card p-4">
+        <h5 class="mb-4 fw-bold text-dark">快速注册</h5>
+
+        {% if msg %}
+            <div class="alert alert-danger border-0 small text-center mb-4" style="border-radius: 10px; background-color: #fff0f0; color: #e63946;">
+                <i class="bi bi-exclamation-circle me-1"></i> {{ msg }}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-muted">设置用户名</label>
+                <div class="input-group custom-input-group">
+                    <span class="input-group-text"><i class="bi bi-person text-secondary"></i></span>
+                    <input type="text" name="username" class="form-control" placeholder="建议使用字母或数字" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-muted">设置密码</label>
+                <div class="input-group custom-input-group">
+                    <span class="input-group-text"><i class="bi bi-shield-lock text-secondary"></i></span>
+                    <input type="password" name="password" class="form-control" placeholder="请输入 6 位以上密码" required>
+                </div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-register text-white">
+                    立即注册
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-4">
+            <p class="small text-muted mb-0">已有账号？ <a href="/login" class="text-primary text-decoration-none fw-bold">返回登录</a></p>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

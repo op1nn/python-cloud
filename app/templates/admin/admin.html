@@ -1,0 +1,120 @@
+{% extends 'admin/base_admin.html' %}
+{% set active_page = 'dashboard' %}
+{% block title %}仪表盘{% endblock %}
+{% block page_title %}控制面板{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="file-card p-4">
+            <div class="text-muted small fw-bold">用户总数</div>
+            <h2 class="fw-bold mb-0 text-primary">{{ total_users }}</h2>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="file-card p-4">
+            <div class="text-muted small fw-bold">文件总数</div>
+            <h2 class="fw-bold mb-0 text-success">{{ total_files }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="file-card p-4 h-100">
+            <div class="text-muted small fw-bold">实时文件总数</div>
+            <h2 class="fw-bold mb-0 text-primary" id="current-file-count">{{ total_files }}</h2>
+            <div class="mt-2 small text-success">
+                <i class="bi bi-arrow-up-short"></i> 实时监控中
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="file-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">文件增长趋势 (每分钟更新)</h6>
+                <span class="badge bg-primary-subtle text-primary rounded-pill">Live</span>
+            </div>
+            <div style="height: 300px;">
+                <canvas id="fileTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('fileTrendChart').getContext('2d');
+
+    // 初始化图表
+    const fileTrendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [], // 时间轴
+            datasets: [{
+                label: '文件总数',
+                data: [],
+                borderColor: '#4361ee',
+                backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                fill: true,
+                tension: 0.4, // 曲线弧度，0.4 看起来更丝滑
+                pointRadius: 4,
+                pointBackgroundColor: '#4361ee'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false } // 隐藏顶部图例，保持简约
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            animation: {
+                duration: 1000 // 更新时的动画时长
+            }
+        }
+    });
+
+    // 获取并更新数据的函数
+    async function updateStats() {
+        try {
+            const response = await fetch("{{ url_for('admin.get_stats') }}");
+            const data = await response.json();
+
+            // 更新左侧数字卡片
+            document.getElementById('current-file-count').innerText = data.count;
+
+            // 更新图表数据
+            const labels = fileTrendChart.data.labels;
+            const dataset = fileTrendChart.data.datasets[0].data;
+
+            // 保持最近 10 条记录，防止图表太拥挤
+            if (labels.length > 10) {
+                labels.shift();
+                dataset.shift();
+            }
+
+            labels.push(data.time);
+            dataset.push(data.count);
+
+            fileTrendChart.update();
+        } catch (error) {
+            console.error("更新统计失败:", error);
+        }
+    }
+
+    // 页面加载后先执行一次，然后每 60 秒执行一次
+    updateStats();
+    setInterval(updateStats, 60000);
+</script>
+{% endblock %}
